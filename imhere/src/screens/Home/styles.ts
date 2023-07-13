@@ -22,7 +22,8 @@ export const styles = StyleSheet.create({
     },
     form:{
         flexDirection: 'row',
-        width: '100%'
+        width: '100%',
+        marginBottom: 10
     },
     input: {
         height: 46,
@@ -36,13 +37,14 @@ export const styles = StyleSheet.create({
     },
     buttonText: {
         color: '#FFF',
-        fontSize: 35,
+        fontSize: 25
     },
     button: {
         height:46,
         width: 46,
         borderRadius: 10,
         backgroundColor: '#102536',
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center'
     }
 });

@@ -1,11 +1,17 @@
 import { Text, View, TextInput, TouchableOpacity } from 'react-native';
 import { styles } from './styles';
 import { Participant } from '../../components/Participant';
+import { useState } from 'react';
 
 export function Home() {
+    const [participants, setParticipants] = useState<String[]>([]);
 
-    function handleParticipantAdd() {
-        return console.log('Participante adicionado');
+    function handleParticipantAdd(name: String) {
+        return setParticipants([...participants, name])
+    }
+
+    function handleParticipantRemove(name: String) {
+        return console.log(`Participante ${name} removido`);
     }
 
 
@@ -27,16 +33,22 @@ export function Home() {
 
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={handleParticipantAdd}
+                    onPress={() => handleParticipantAdd(`hudson`)}
                 >
                     <Text style={styles.buttonText}>
                         +
                     </Text>
                 </TouchableOpacity>
             </View>
-            <Participant />
-            <Participant />
-            <Participant />
+            {
+                participants.map(partipant => (
+                    <Participant name={partipant} onRemove={() => handleParticipantRemove('Hudson Baroni')} />
+
+                ))
+            }
+
+            {/* <Participant name="Matheus Gay" onRemove={() => handleParticipantRemove('Matheus Gay')}/>
+            <Participant name="Caio Baitola" onRemove={() => handleParticipantRemove('Caio Baitola')}/> */}
 
         </View>
     );

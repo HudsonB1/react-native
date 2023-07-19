@@ -1,13 +1,15 @@
-import { Text, View, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, FlatList } from 'react-native';
 import { styles } from './styles';
 import { Participant } from '../../components/Participant';
 import { useState } from 'react';
 
 export function Home() {
-    const [participants, setParticipants] = useState<String[]>([]);
+    // const [participants, setParticipants] = useState<String[]>([]);
+    const participants = ['hudson', 'caio', 'matheus',''];
 
     function handleParticipantAdd(name: String) {
-        return setParticipants([...participants, name])
+        // return setParticipants([...participants, name])
+        return 'ok';
     }
 
     function handleParticipantRemove(name: String) {
@@ -40,15 +42,24 @@ export function Home() {
                     </Text>
                 </TouchableOpacity>
             </View>
-            {
-                participants.map(partipant => (
-                    <Participant name={partipant} onRemove={() => handleParticipantRemove('Hudson Baroni')} />
 
-                ))
-            }
-
-            {/* <Participant name="Matheus Gay" onRemove={() => handleParticipantRemove('Matheus Gay')}/>
-            <Participant name="Caio Baitola" onRemove={() => handleParticipantRemove('Caio Baitola')}/> */}
+            <FlatList 
+            data={participants}
+            keyExtractor={item => item}
+            renderItem={({item}) => (
+                <Participant 
+                name={item}
+                key={item}
+                onRemove={() => handleParticipantRemove('hudson')}
+                />
+            ) }
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={() => (
+                <Text style={styles.ListEmptyText}>
+                    Ninguém chegou no evento ainda? Adicione participantes a sua lista de presença.
+                </Text>
+            )}
+            />
 
         </View>
     );

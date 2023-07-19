@@ -4,8 +4,11 @@ import { StatusBar } from 'react-native';
 export default function App() {
   return (
     <>
+      <StatusBar 
+      barStyle={'light-content'}
+      translucent
+      />
       <Home />
-      <StatusBar backgroundColor="#696969" translucent={true} />
     </>
   );
 };

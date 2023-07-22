@@ -7,7 +7,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-export function Home() {
+export default function EventScreen() {
     const [participants, setParticipants] = useState<String[]>([]);
     const [participantName, setParticipantName] = useState('');
     const [isPopupVisible, setIsPopupVisible] = useState(false);

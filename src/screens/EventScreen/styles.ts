@@ -33,11 +33,12 @@ export const styles = StyleSheet.create({
     },
     alterButton:{
         backgroundColor: '#30914a',
-        width: 70,
-        height: 25,
+        width: 80,
+        height: 28,
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 5
+        borderRadius: 5,
+        marginTop: 10
     },
 
     inputPopup: {

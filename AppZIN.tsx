@@ -1,4 +1,4 @@
-import { Home } from './src/screens/Home';
+import  EventScreen  from './src/screens/EventScreen';
 import { StatusBar } from 'react-native';
 
 export default function App() {
@@ -8,7 +8,7 @@ export default function App() {
       barStyle={'light-content'}
       translucent
       />
-      <Home />
+      <EventScreen />
     </>
   );
 };

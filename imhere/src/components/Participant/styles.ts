@@ -23,7 +23,6 @@ export const styles = StyleSheet.create({
         width: 38,
         alignItems: 'center',
         justifyContent: 'center',
-        opacity: 0.7,
         borderRadius: 4
     }
 });

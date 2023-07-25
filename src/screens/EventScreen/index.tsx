@@ -6,6 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Link } from 'expo-router';
 
 export default function EventScreen() {
     const [participants, setParticipants] = useState<String[]>([]);
@@ -30,8 +31,7 @@ export default function EventScreen() {
             {
                 text: 'Sim',
                 onPress: () => (
-                    setParticipants(participants.filter(participant => participant !== name)),
-                    Alert.alert('Removido', 'Participante removido!')
+                    setParticipants(participants.filter(participant => participant !== name))
                 )
             },
             {
@@ -70,7 +70,10 @@ export default function EventScreen() {
 
     return (
         <View style={styles.container}>
-            <View style={{ flexDirection: 'row', marginTop: 48, alignItems: 'center' }}>
+            <Link href='/'>
+                    <Feather name="arrow-left" size={18} color='#FFF'/>
+                </Link>
+            <View style={{ flexDirection: 'row', marginTop: 15, alignItems: 'center' }}>
                 <Text style={styles.eventName}>
                     {eventName}
                 </Text>
@@ -81,8 +84,6 @@ export default function EventScreen() {
                     <View style={styles.blurBackground} />
                     <View style={styles.popup}>
                         {/* Conteúdo do popup aqui */}
-
-                        <Text style={{ color: '#FFF', fontSize: 18 }}>Nome do evento</Text>
                         <TextInput
                             style={styles.inputPopup}
                             value={alterEventName}

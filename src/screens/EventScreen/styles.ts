@@ -4,7 +4,7 @@ export const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#131016',
-        padding: 24
+        padding: 24,
     },
 
     eventName: {
@@ -67,22 +67,24 @@ export const styles = StyleSheet.create({
     form: {
         flexDirection: 'row',
         width: '100%',
-        marginBottom: 10
+        marginBottom: 10,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     input: {
-        height: 46,
+        height: 31,
         flex: 1,
         marginRight: 5,
         backgroundColor: '#1f1e25',
-        borderRadius: 6,
+        borderRadius: 5,
         color: '#fff',
         paddingLeft: 16,
         fontSize: 20
     },
     button: {
-        height: 46,
-        width: 46,
-        borderRadius: 10,
+        height: 31,
+        width: 31,
+        borderRadius: 5,
         backgroundColor: '#102536',
         alignItems: 'center',
         justifyContent: 'center'

@@ -1,20 +1,35 @@
 import { View, Text, TouchableOpacity, Modal, TextInput, FlatList, Alert } from 'react-native';
 import { styles } from './styles';
 import { Feather } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Event } from '../../components/Event';
 
+
+
+// const SERVER_URL = 'http://localhost:3000'; // Substitua pela URL do seu servidor local
 
 export function Home() {
     const [isPopupVisible, setIsPopupVisible] = useState(false);
     const [eventName, setEventName] = useState('');
     const [events, setEvents] = useState<String[]>([]);
 
+    useEffect(() => {
+        fetchNomes();
+    }, [events]);
+
+    async function fetchNomes() {
+        const response = await fetch('http://192.168.3.101:3030/nome-eventos');
+        const data = await response.json();
+
+        setEvents(data.map((nome: any) => nome.nome));
+    }
+
     function handleOpenPopup() {
         setIsPopupVisible(true);
     };
 
     function handleClosePopup(event: String) {
+
         if (event === '') {
             setIsPopupVisible(false);
         } else {
@@ -23,6 +38,8 @@ export function Home() {
         }
         setEventName('');
     };
+
+
 
     function removeEvent(event: String) {
         Alert.alert('Remover', `Deseja remover o evento ${event}?`, [
@@ -36,6 +53,44 @@ export function Home() {
                 text: 'Não'
             }
         ])
+    }
+
+    function handleCreateEvent() {
+        const newEvent = {
+            nome: 'teste',
+            data: new Date(),
+        };
+
+        fetch(`http://192.168.3.101:3030/criar-evento`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newEvent),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data); // Resposta do servidor após a criação do evento
+                // Faça qualquer ação necessária com a resposta do servidor
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
+
+    async function getEvents() {
+        try {
+            // Make a request to the server.
+            const data = await fetch('http://192.168.3.101:3030/eventos');
+
+            // Handle the successful response.
+            const json = await data.json();
+            return json;
+        } catch (error) {
+            // Handle the error response.
+            console.log('There has been a problem with your fetch operation: ' + error);
+            throw error; // Lança o erro novamente para que o chamador possa lidar com ele, se necessário.
+        }
     }
 
     return (
@@ -76,7 +131,9 @@ export function Home() {
                     </View>
                 </Modal>
 
-
+                <TouchableOpacity style={styles.createButton} onPress={handleCreateEvent}>
+                    <Text style={{ color: '#FFF', fontSize: 16 }}>Criar</Text>
+                </TouchableOpacity>
                 <FlatList
                     data={events}
                     // keyExtractor={item => item}
@@ -90,7 +147,6 @@ export function Home() {
                         </Text>
                     )}
                 />
-
             </View>
         </>
     )

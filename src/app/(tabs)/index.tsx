@@ -4,7 +4,7 @@ import { StatusBar } from 'react-native';
 export default function index() {
     return (
         <>
-            <StatusBar translucent/>
+            <StatusBar barStyle={'light-content'} translucent/>
             <Home />
         </>
     );

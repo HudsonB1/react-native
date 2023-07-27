@@ -4,9 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
 import { Event } from '../../components/Event';
 
-
-
-// const SERVER_URL = 'http://localhost:3000'; // Substitua pela URL do seu servidor local
+const SERVER_URL = 'http://192.168.3.101:3030'; // Substitua pela URL do seu servidor local
 
 export function Home() {
     const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -18,9 +16,8 @@ export function Home() {
     }, [events]);
 
     async function fetchNomes() {
-        const response = await fetch('http://192.168.3.101:3030/nome-eventos');
+        const response = await fetch(`${SERVER_URL}/nome-eventos`);
         const data = await response.json();
-
         setEvents(data.map((nome: any) => nome.nome));
     }
 
@@ -28,25 +25,22 @@ export function Home() {
         setIsPopupVisible(true);
     };
 
-    function handleClosePopup(event: String) {
-
-        if (event === '') {
-            setIsPopupVisible(false);
-        } else {
-            setEvents([...events, event]);
-            setIsPopupVisible(false);
-        }
-        setEventName('');
-    };
-
-
-
     function removeEvent(event: String) {
         Alert.alert('Remover', `Deseja remover o evento ${event}?`, [
             {
                 text: 'Sim',
                 onPress: () => (
-                    setEvents(events.filter((e) => e !== event))
+                    // setEvents(events.filter((e) => e !== event))
+                    fetch(`${SERVER_URL}/deletar-evento`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({nome: event})
+                    })
+                    .then(response => console.log(response + ' ok'))
+                    .catch(error => error)
+
                 )
             },
             {
@@ -55,13 +49,13 @@ export function Home() {
         ])
     }
 
-    function handleCreateEvent() {
+    function handleCreateEvent(name: String) {
         const newEvent = {
-            nome: 'teste',
+            nome: name,
             data: new Date(),
         };
 
-        fetch(`http://192.168.3.101:3030/criar-evento`, {
+        fetch(`${SERVER_URL}/criar-evento`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -76,22 +70,9 @@ export function Home() {
             .catch((error) => {
                 console.error(error);
             });
+        setIsPopupVisible(false)
+        setEventName('');
     };
-
-    async function getEvents() {
-        try {
-            // Make a request to the server.
-            const data = await fetch('http://192.168.3.101:3030/eventos');
-
-            // Handle the successful response.
-            const json = await data.json();
-            return json;
-        } catch (error) {
-            // Handle the error response.
-            console.log('There has been a problem with your fetch operation: ' + error);
-            throw error; // Lança o erro novamente para que o chamador possa lidar com ele, se necessário.
-        }
-    }
 
     return (
         <>
@@ -99,7 +80,7 @@ export function Home() {
                 <Text style={styles.eventList}>
                     Lista de eventos
                 </Text>
-                <View style={{ flexDirection: 'row', marginTop: 5, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={styles.viewNewEvent}>
                     <Text style={styles.newEvent}> Novo evento </Text>
                     <TouchableOpacity onPress={handleOpenPopup} style={styles.buttonCreateEvent}>
                         <Feather name="plus" size={20} color='#fff' />
@@ -107,11 +88,12 @@ export function Home() {
                 </View>
 
                 {/* Popup*/}
-                <Modal visible={isPopupVisible} onRequestClose={() => handleClosePopup('')} transparent >
+                <Modal visible={isPopupVisible} onRequestClose={() => setIsPopupVisible(false)} transparent >
                     <View style={styles.blurBackground} />
 
                     <View style={styles.popup}>
                         {/* Conteúdo do popup aqui */}
+                        
                         <Text style={styles.nameEvent}>Nome do evento</Text>
                         <TextInput
                             style={styles.inputPopup}
@@ -120,20 +102,17 @@ export function Home() {
 
                         {/* Botão para fechar o popup */}
                         <View style={{ flexDirection: 'row' }}>
-                            <TouchableOpacity style={styles.cancelButton} onPress={() => handleClosePopup('')}>
+                            <TouchableOpacity style={styles.cancelButton} onPress={() => setIsPopupVisible(false)}>
                                 <Text style={{ color: '#FFF', fontSize: 16 }}>Cancelar</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.createButton} onPress={() => handleClosePopup(eventName)}>
+                            <TouchableOpacity style={styles.createButton} onPress={() => handleCreateEvent(eventName)}>
                                 <Text style={{ color: '#FFF', fontSize: 16 }}>Criar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
                 </Modal>
 
-                <TouchableOpacity style={styles.createButton} onPress={handleCreateEvent}>
-                    <Text style={{ color: '#FFF', fontSize: 16 }}>Criar</Text>
-                </TouchableOpacity>
                 <FlatList
                     data={events}
                     // keyExtractor={item => item}

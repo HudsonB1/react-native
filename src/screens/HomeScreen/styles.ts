@@ -12,15 +12,23 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginRight: 10
     },
+    viewNewEvent: {
+        flexDirection: 'row',
+        marginTop: 5,
+        marginBottom: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#1f1e25',
+        borderRadius: 5,
+        height: 40
+    },
     newEvent: {
         flex: 1,
         height: 30,
         width: 30,
-        borderRadius: 5,
         color: '#fff',
         fontSize: 19,
         margin: 10,
-        backgroundColor: '#1f1e25',
         alignItems: 'center',
         justifyContent: 'center'
     },
@@ -28,7 +36,9 @@ export const styles = StyleSheet.create({
     nameEvent: {
         color: '#FFF',
         fontSize: 16,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        alignItems: 'center',
+        justifyContent: 'center'
     },
 
     buttonCreateEvent: {
@@ -37,7 +47,8 @@ export const styles = StyleSheet.create({
         borderRadius: 5,
         backgroundColor: '#102536',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        marginRight: 10
     },
 
     blurBackground: {

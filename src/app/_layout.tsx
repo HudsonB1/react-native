@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 export default function TabRoutesLayout() {
     return (
         <>
+
             <Stack screenOptions={{ headerShown: false }}>
 
                 <Stack.Screen
@@ -11,8 +12,9 @@ export default function TabRoutesLayout() {
                         title: 'Início'
                     }}
                 />
+
                 <Stack.Screen
-                    name='eventScreen'
+                    name='eventScreen/[id]'
                     options={{
                         title: 'Perfil'
                     }}

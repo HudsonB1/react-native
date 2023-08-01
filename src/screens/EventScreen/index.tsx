@@ -1,12 +1,14 @@
 import { Text, View, TextInput, TouchableOpacity, FlatList, Alert, Modal } from 'react-native';
 import { styles } from './styles';
 import { Participant } from '../../components/Participant';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Link } from 'expo-router';
+import { Link, useLocalSearchParams } from 'expo-router';
+
+const SERVER_URL = 'http://192.168.3.101:3030';
 
 export default function EventScreen() {
     const [participants, setParticipants] = useState<String[]>([]);
@@ -17,12 +19,64 @@ export default function EventScreen() {
     const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 
+    const id = useLocalSearchParams<{
+        id: string
+    }>().id ?? '';
+    const [params, setParams] = useState<String>(decodeURIComponent(id));
+
+    useEffect(() => {
+        renderEvent();
+    }, [params]);
+
+    async function renderEvent() {
+        const response = await fetch(`${SERVER_URL}/eventos`);
+        const data = await response.json();
+
+        const name = data.filter((nome: any) => nome.nome == params)[0].nome;
+        const date = new Date(data.filter((nome: any) => nome.nome == params)[0].data);
+
+        setEventName(name);
+        setSelectedDate(date);
+    }
+
+    useEffect(() => {
+        fetchParticipantes();
+    }, [participantName]);
+
+    async function fetchParticipantes() {
+        const response = await fetch(`${SERVER_URL}/participantes`);
+        const data = await response.json();
+        setParticipants(data.filter((evento: any) => evento.evento == params).map((nome: any) => nome.nome));
+        console.log(participants);
+    }
 
     function handleParticipantAdd(name: String) {
-        if (participants.includes(name)) {
-            return Alert.alert('Participante já existente.', 'Já existe um participante na lista com esse nome!');
-        }
-        setParticipants([...participants, name]);
+        // if (participants.includes(name)) {
+        //     return Alert.alert('Participante já existente.', 'Já existe um participante na lista com esse nome!');
+        // }
+
+        const newParticipant = {
+            evento: params,
+            nome: name,
+        };
+
+        fetch(`${SERVER_URL}/adicionar-participante`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newParticipant),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data); // Resposta do servidor após a criação do evento
+                // Faça qualquer ação necessária com a resposta do servidor
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+
+        // setParticipants([...participants, name]);
         setParticipantName('');
     }
 
@@ -31,48 +85,82 @@ export default function EventScreen() {
             {
                 text: 'Sim',
                 onPress: () => (
+                    fetch(`${SERVER_URL}/deletar-participante`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ nome: name })
+                    })
+                        .then(response => console.log(response + ' ok'))
+                        .catch(error => error),
+                        
                     setParticipants(participants.filter(participant => participant !== name))
                 )
-            },
-            {
-                text: 'Não',
-                style: 'cancel'
-            }
-        ]);
+    },
+    {
+        text: 'Não',
+            style: 'cancel'
     }
+        ]);
+}
 
-    const handleOpenPopup = () => {
-        setIsPopupVisible(true);
-    };
+const handleOpenPopup = () => {
+    setIsPopupVisible(true);
+};
 
-    const handleClosePopup = () => {
-        if (alterEventName === '') {
-            setIsPopupVisible(false);
-        } else {
-            setEventName(alterEventName);
-            setIsPopupVisible(false);
-        }
-    };
+const handleClosePopup = () => {
+    if (alterEventName === '') {
+        setIsPopupVisible(false);
+    } else {
+        handleNameEvent(eventName, alterEventName);
+        setIsPopupVisible(false);
+    }
+};
+
+const handleConfirm = (date: Date) => {
+    setSelectedDate(date);
+    setDatePickerVisible(false);
+};
+
+const handleCancel = () => {
+    setDatePickerVisible(false);
+};
+
+const formattedDate = selectedDate
+    ? format(selectedDate, "eeee, d 'de' MMMM 'de' yyyy", { locale: ptBR })
+    : '';
 
 
-    const handleConfirm = (date: Date) => {
-        setSelectedDate(date);
-        setDatePickerVisible(false);
-    };
+function handleNameEvent(oldName: String, newName: String) {
+    const names = {
+        nomeAntigo: oldName,
+        nomeNovo: newName
+    }
+    fetch(`${SERVER_URL}/alterar-nome-evento`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(names)
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log(data);
+            setParams(newName);
+        })
+        .catch((error) => {
+            console.error(error);
+        });
 
-    const handleCancel = () => {
-        setDatePickerVisible(false);
-    };
+}
 
-    const formattedDate = selectedDate
-        ? format(selectedDate, "eeee, d 'de' MMMM 'de' yyyy", { locale: ptBR })
-        : '';
-
-    return (
+return (
+    <>
         <View style={styles.container}>
             <Link href='/'>
-                    <Feather name="arrow-left" size={18} color='#FFF'/>
-                </Link>
+                <Feather name="arrow-left" size={18} color='#FFF' />
+            </Link>
             <View style={{ flexDirection: 'row', marginTop: 15, alignItems: 'center' }}>
                 <Text style={styles.eventName}>
                     {eventName}
@@ -155,5 +243,6 @@ export default function EventScreen() {
                 )}
             />
         </View>
-    );
+    </>
+);
 }

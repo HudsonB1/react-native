@@ -4,7 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
 import { Event } from '../../components/Event';
 
-const SERVER_URL = 'http://192.168.3.101:3030'; // Substitua pela URL do seu servidor local
+const SERVER_URL = 'http://192.168.3.101:3030';
 
 export function Home() {
     const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -16,7 +16,7 @@ export function Home() {
     }, [events]);
 
     async function fetchNomes() {
-        const response = await fetch(`${SERVER_URL}/nome-eventos`);
+        const response = await fetch(`${SERVER_URL}/eventos`);
         const data = await response.json();
         setEvents(data.map((nome: any) => nome.nome));
     }
@@ -30,16 +30,15 @@ export function Home() {
             {
                 text: 'Sim',
                 onPress: () => (
-                    // setEvents(events.filter((e) => e !== event))
                     fetch(`${SERVER_URL}/deletar-evento`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({nome: event})
+                        body: JSON.stringify({ nome: event })
                     })
-                    .then(response => console.log(response + ' ok'))
-                    .catch(error => error)
+                        .then(response => console.log(response + ' ok'))
+                        .catch(error => error)
 
                 )
             },
@@ -93,7 +92,7 @@ export function Home() {
 
                     <View style={styles.popup}>
                         {/* Conteúdo do popup aqui */}
-                        
+
                         <Text style={styles.nameEvent}>Nome do evento</Text>
                         <TextInput
                             style={styles.inputPopup}

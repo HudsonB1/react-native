@@ -14,10 +14,10 @@ export function Event({ name, onRemove }: Props) {
             <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
                 <View style={styles.container}>
                     <Text style={styles.eventName}>{name}</Text>
-                    {/* <TouchableOpacity onPress={onPress}>
-                    <Feather name="arrow-right" size={20} color='#fff' />
-                </TouchableOpacity> */}
-                    <Link href='/eventScreen'>
+                    <Link href={{
+                        pathname: '/eventScreen/[id]',
+                        params: {id: name}
+                    }}>
                         <Feather name="arrow-right" size={20} color='#fff' />
                     </Link>
                 </View>

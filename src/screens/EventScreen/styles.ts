@@ -52,7 +52,6 @@ export const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16
     },
-
     eventDate: {
         color: '#6b6b6b',
         fontSize: 16,

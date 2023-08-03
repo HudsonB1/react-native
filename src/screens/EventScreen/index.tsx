@@ -35,25 +35,25 @@ export default function EventScreen() {
         const name = data.filter((nome: any) => nome.nome == params)[0].nome;
         const date = new Date(data.filter((nome: any) => nome.nome == params)[0].data);
 
+        setAlterEventName(name);
         setEventName(name);
         setSelectedDate(date);
     }
 
     useEffect(() => {
         fetchParticipantes();
-    }, [participantName]);
+    }, [participants]);
 
     async function fetchParticipantes() {
         const response = await fetch(`${SERVER_URL}/participantes`);
         const data = await response.json();
         setParticipants(data.filter((evento: any) => evento.evento == params).map((nome: any) => nome.nome));
-        console.log(participants);
     }
 
     function handleParticipantAdd(name: String) {
-        // if (participants.includes(name)) {
-        //     return Alert.alert('Participante já existente.', 'Já existe um participante na lista com esse nome!');
-        // }
+        if (participants.includes(name)) {
+            return Alert.alert('Participante já existente.', 'Já existe um participante na lista com esse nome!');
+        }
 
         const newParticipant = {
             evento: params,
@@ -68,15 +68,10 @@ export default function EventScreen() {
             body: JSON.stringify(newParticipant),
         })
             .then((response) => response.json())
-            .then((data) => {
-                console.log(data); // Resposta do servidor após a criação do evento
-                // Faça qualquer ação necessária com a resposta do servidor
-            })
             .catch((error) => {
                 console.error(error);
             });
 
-        // setParticipants([...participants, name]);
         setParticipantName('');
     }
 
@@ -90,12 +85,11 @@ export default function EventScreen() {
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ nome: name })
+                        body: JSON.stringify({ nome: name, evento: params })
                     })
-                        .then(response => console.log(response + ' ok'))
-                        .catch(error => error),
+                        .then(response => response)
+                        .catch(error => error)
                         
-                    setParticipants(participants.filter(participant => participant !== name))
                 )
     },
     {
@@ -118,9 +112,26 @@ const handleClosePopup = () => {
     }
 };
 
-const handleConfirm = (date: Date) => {
-    setSelectedDate(date);
+const handleConfirmDate = (date: Date) => {
     setDatePickerVisible(false);
+    setSelectedDate(date);
+
+    const novaData = {
+        nomeEvento: params,
+        novaData: date
+    }
+    fetch(`${SERVER_URL}/alterar-data-evento`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(novaData)
+    })
+        .then((response) => response.json())
+        .catch((error) => {
+            console.error(error);
+        });
+
 };
 
 const handleCancel = () => {
@@ -146,13 +157,11 @@ function handleNameEvent(oldName: String, newName: String) {
     })
         .then((response) => response.json())
         .then((data) => {
-            console.log(data);
             setParams(newName);
         })
         .catch((error) => {
             console.error(error);
         });
-
 }
 
 return (
@@ -192,7 +201,7 @@ return (
                 mode="date"
                 locale="pt_BR"
                 date={selectedDate || undefined}
-                onConfirm={handleConfirm}
+                onConfirm={handleConfirmDate}
                 onCancel={handleCancel}
             />
             <View style={styles.viewDate}>
@@ -219,7 +228,6 @@ return (
                     style={styles.button}
                     onPress={() => handleParticipantAdd(participantName)}
                 >
-                    {/* <AddIcon style={styles.buttonText}/> */}
                     <Feather name="plus" size={24} color="white" />
 
                 </TouchableOpacity>

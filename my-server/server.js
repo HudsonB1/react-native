@@ -65,6 +65,7 @@ app.delete('/deletar-evento', (req, res) => {
 
     // Executar uma query para remover o evento no banco de dados
     const sql = 'delete from eventos where nome = (?)';
+
     connection.query(sql, [nome], (err, result) => {
         if (err) {
             console.error('Erro ao remover o evento do banco de dados:', err);
@@ -74,6 +75,17 @@ app.delete('/deletar-evento', (req, res) => {
 
         // Evento removido com sucesso
         res.json({ message: 'Evento removido com sucesso!', id: result.insertId });
+
+        //REMOVER PARTICIPANTES DESSE EVENTO
+        const sql2 = 'delete from participantes where evento = (?)';
+        connection.query(sql2, [nome], (err, result) => {
+            if (err) {
+                console.error('Erro ao remover os participantes do banco de dados:', err);
+                res.status(500).json({ error: 'Erro ao remover os participantes.' });
+                return;
+            }
+            // Participantes removidos com sucesso
+        });
     });
 });
 
@@ -93,17 +105,55 @@ app.put('/alterar-nome-evento', (req, res) => {
             res.status(500).json({ error: 'Erro ao alterar o nome do evento.' });
             return;
         }
-
         // Verificar se algum registro foi afetado
         if (result.affectedRows === 0) {
             res.status(404).json({ error: 'Evento não encontrado ou o nome não foi alterado.' });
             return;
         }
-
         // Nome do evento alterado com sucesso
         res.json({ message: 'Nome do evento alterado com sucesso!' });
+
+        const sql2 = 'UPDATE participantes SET evento = ? WHERE evento = ?';
+        connection.query(sql2, [nomeNovo, nomeAntigo], (err, result) => {
+            if (err) {
+                console.error('Erro ao remover os participantes do banco de dados:', err);
+                res.status(500).json({ error: 'Erro ao remover os participantes.' });
+                return;
+            }
+            // Participantes removidos com sucesso
+        });
+
     });
 });
+
+app.put('/alterar-data-evento', (req, res) => {
+    const { nomeEvento, novaData } = req.body;
+
+    // Verificar se os dados foram fornecidos
+    if (!nomeEvento || !novaData) {
+        return res.status(400).json({ error: 'O nome do evento e a nova data são obrigatórios.' });
+    }
+
+    // Executar uma query para alterar a data do evento no banco de dados
+    const sql = 'UPDATE eventos SET data = ? WHERE nome = ?';
+    connection.query(sql, [novaData, nomeEvento], (err, result) => {
+        if (err) {
+            console.error('Erro ao alterar a data do evento no banco de dados:', err);
+            res.status(500).json({ error: 'Erro ao alterar a data do evento.' });
+            return;
+        }
+
+        // Verificar se algum registro foi afetado
+        if (result.affectedRows === 0) {
+            res.status(404).json({ error: 'Evento não encontrado ou a data não foi alterada.' });
+            return;
+        }
+
+        // Data do evento alterada com sucesso
+        res.json({ message: 'Data do evento alterada com sucesso!' });
+    });
+});
+
 
 // Rota para recuperar a lista de eventos
 app.get('/eventos', (req, res) => {
@@ -146,18 +196,17 @@ app.post('/adicionar-participante', (req, res) => {
     });
 });
 
-// Rota para deletar um participante
 app.delete('/deletar-participante', (req, res) => {
-    const { nome } = req.body;
+    const { nome, evento } = req.body;
 
-    // Verificar se o nome foi fornecido
-    if (!nome) {
-        return res.status(400).json({ error: 'O nome do participante é obrigatório.' });
+    // Verificar se o nome e o evento foram fornecidos
+    if (!nome || !evento) {
+        return res.status(400).json({ error: 'O nome e o evento do participante são obrigatórios.' });
     }
 
     // Executar uma query para remover o participante no banco de dados
-    const sql = 'delete from participantes where nome = (?)';
-    connection.query(sql, [nome], (err, result) => {
+    const sql = 'delete from participantes where nome = (?) and evento = (?)';
+    connection.query(sql, [nome, evento], (err, result) => {
         if (err) {
             console.error('Erro ao remover o participante do banco de dados:', err);
             res.status(500).json({ error: 'Erro ao remover o participante.' });

@@ -11,6 +11,10 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginRight: 10
     },
+    viewDate: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
     viewNewEvent: {
         flexDirection: 'row',
         marginTop: 5,
@@ -20,6 +24,12 @@ export const styles = StyleSheet.create({
         backgroundColor: '#1f1e25',
         borderRadius: 5,
         height: 40
+    }, 
+    eventDate: {
+        color: '#6b6b6b',
+        fontSize: 16,
+        padding: 10,
+        paddingLeft: 0
     },
     newEvent: {
         flex: 1,

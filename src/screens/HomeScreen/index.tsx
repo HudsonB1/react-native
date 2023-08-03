@@ -3,6 +3,10 @@ import { styles } from './styles';
 import { Feather } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
 import { Event } from '../../components/Event';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
 
 const SERVER_URL = 'http://192.168.3.101:3030';
 
@@ -10,6 +14,8 @@ export function Home() {
     const [isPopupVisible, setIsPopupVisible] = useState(false);
     const [eventName, setEventName] = useState('');
     const [events, setEvents] = useState<String[]>([]);
+    const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
     useEffect(() => {
         fetchNomes();
@@ -37,7 +43,7 @@ export function Home() {
                         },
                         body: JSON.stringify({ nome: event })
                     })
-                        .then(response => console.log(response + ' ok'))
+                        .then(response => response)
                         .catch(error => error)
 
                 )
@@ -49,9 +55,13 @@ export function Home() {
     }
 
     function handleCreateEvent(name: String) {
+
+        if (events.includes(name)) {
+            return Alert.alert('Evento já existente.', 'Já existe um evento na lista com esse nome!');
+        }
         const newEvent = {
             nome: name,
-            data: new Date(),
+            data: selectedDate,
         };
 
         fetch(`${SERVER_URL}/criar-evento`, {
@@ -62,16 +72,26 @@ export function Home() {
             body: JSON.stringify(newEvent),
         })
             .then((response) => response.json())
-            .then((data) => {
-                console.log(data); // Resposta do servidor após a criação do evento
-                // Faça qualquer ação necessária com a resposta do servidor
-            })
             .catch((error) => {
                 console.error(error);
             });
         setIsPopupVisible(false)
         setEventName('');
     };
+
+    const handleConfirmDate = (date: Date) => {
+        setDatePickerVisible(false);
+        setSelectedDate(date);
+    };
+
+    const handleCancel = () => {
+        setDatePickerVisible(false);
+    };
+
+    const formattedDate = selectedDate
+        ? format(selectedDate, "eeee, d 'de' MMMM 'de' yyyy", { locale: ptBR })
+        : '';
+
 
     return (
         <>
@@ -93,11 +113,32 @@ export function Home() {
                     <View style={styles.popup}>
                         {/* Conteúdo do popup aqui */}
 
-                        <Text style={styles.nameEvent}>Nome do evento</Text>
+                        <Text style={styles.nameEvent}>Nome e Data do evento</Text>
                         <TextInput
                             style={styles.inputPopup}
                             onChangeText={setEventName}
                         />
+
+                        {/* Input Date - GPT */}
+                        {/* Input de data (date picker) */}
+                        <DateTimePickerModal
+                            isVisible={isDatePickerVisible}
+                            mode="date"
+                            locale="pt_BR"
+                            date={selectedDate || undefined}
+                            onConfirm={handleConfirmDate}
+                            onCancel={handleCancel}
+                        />
+                        <View style={styles.viewDate}>
+                            {/* Mostrar a data selecionada */}
+                            {selectedDate && (
+                                <Text style={styles.eventDate}>{formattedDate}</Text>
+                            )}
+                            {/* Botão que abre o date picker */}
+                            <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
+                                <Feather name="edit" size={18} color='#6b6b6b' />
+                            </TouchableOpacity>
+                        </View>
 
                         {/* Botão para fechar o popup */}
                         <View style={{ flexDirection: 'row' }}>
